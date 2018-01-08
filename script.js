@@ -147,18 +147,18 @@ document.addEventListener("click", function(e) {
     } else if (x > 15) {
       newTow = 0;
     }
-  }
-  let newTowerDiscs = towers[newTow];
-  if (clickedTower === -1 && newTowerDiscs.length > 0 ) {
-    clickedTower = newTow;
-    redraw();
-  } else if (clickedTower !== newTow) {
-    moveDisc(clickedTower, newTow);
+    let newTowerDiscs = towers[newTow];
+    if (clickedTower === -1 && newTowerDiscs.length > 0 ) {
+      clickedTower = newTow;
+      redraw();
+    } else if (clickedTower !== newTow) {
+      moveDisc(clickedTower, newTow);
+    }
   }
 });
 
 const solve = () => {
-  console.log('solve!');
+  hanoi(10, 0, 2, 1);
 }
 
 solveButton.addEventListener("click", function(e){
@@ -166,5 +166,13 @@ solveButton.addEventListener("click", function(e){
 })
 
 drawTower();
-// drawTower(210); // tower 2
-// drawTower(420); // tower 3
+
+const hanoi = (n, src, dst, aux) => {
+  if (n === 1 ) {
+    moveDisc(src, dst);
+  } else {
+    hanoi(n-1, src, aux, dst);
+    moveDisc(src, dst);
+    hanoi(n-1, aux, dst, src);
+  }
+}
