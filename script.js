@@ -22,8 +22,10 @@ const towerOffsets = {
 
 const solveButton = document.getElementById("solve");
 const iiVIButton = document.getElementById("iiVI");
+const resetButton = document.getElementById("reset");
 let root = 523.25;
 let fourth = Math.pow(2, 5/12) * root;
+let timer;
 const towers = [[], [], []];
 let clickedTower = -1;
 const drawCanvas = () => {
@@ -168,7 +170,6 @@ document.addEventListener("click", function(e) {
   }
 });
 let callStack = [];
-let timer;
 const solve = () => {
   callStack = [];
   hanoi(10, 0, 2, 1);
@@ -176,16 +177,19 @@ const solve = () => {
 }
 
 solveButton.addEventListener("click", function(e){
-  reset();
   solve();
 })
 
 iiVIButton.addEventListener("click", function() {
-  reset();
   timer = setInterval(twoFiveOne, 1000);
 })
 
+resetButton.addEventListener("click", function() {
+  reset();
+})
+
 const reset = () => {
+  clearInterval(timer);
   killDiscs();
   drawCanvas();
   drawTower(0);
