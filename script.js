@@ -114,6 +114,8 @@ const moveDisc = (from, to) => {
     disc.y = 490 - 10*toTow.length;
     disc.osc.frequency.value = getPitch(to, disc.size);
     toTow.push(disc);
+  } else {
+    console.log("fail: ", fromTow, toTow);
   }
   clickedTower = -1;
   redraw();
@@ -156,9 +158,12 @@ document.addEventListener("click", function(e) {
     }
   }
 });
-
+let callStack = [];
+let timer;
 const solve = () => {
+  callStack = [];
   hanoi(10, 0, 2, 1);
+  timer = setInterval(animateMove, 300); // Start animation;
 }
 
 solveButton.addEventListener("click", function(e){
@@ -169,10 +174,19 @@ drawTower();
 
 const hanoi = (n, src, dst, aux) => {
   if (n === 1 ) {
-    moveDisc(src, dst);
+    callStack.push([src, dst]);
   } else {
     hanoi(n-1, src, aux, dst);
-    moveDisc(src, dst);
+    callStack.push([src, dst]);
     hanoi(n-1, aux, dst, src);
   }
+}
+
+const animateMove = () => {
+  if (callStack.length > 0) {
+    let move = callStack.shift();
+    moveDisc(move[0], move[1]);
+ } else {
+   clearInterval(timer);
+ }
 }
