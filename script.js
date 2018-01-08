@@ -3,8 +3,8 @@ const ctx = canvas.getContext("2d");
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const colors = [
   "#900",
-  "#011",
-  "#022",
+  "#391",
+  "#822",
   "#303",
   "#111",
   "#511",
@@ -195,13 +195,21 @@ const reset = () => {
   drawTower(0);
 }
 
-
+let noteStream = [];
 const hanoi = (n, src, dst, aux) => {
   if (n === 1 ) {
     callStack.push([src, dst]);
+    noteStream.push({
+      partial: towers[src].length - 1,
+      dst,
+    })
   } else {
     hanoi(n-1, src, aux, dst);
     callStack.push([src, dst]);
+    noteStream.push({
+      partial: towers[src].length - 1,
+      dst,
+    })
     hanoi(n-1, aux, dst, src);
   }
 }
@@ -226,6 +234,5 @@ const twoFiveOne = () => {
     iiV = [0, 1, 2];
 }
 }
-
 drawCanvas();
 drawTower(0);
