@@ -20,6 +20,9 @@ const towerOffsets = {
   2: 420,
 }
 
+const midi = null;
+//navigator.requestMIDIAccess({sysex: true}).then( (midiAccess) => midi);
+
 const solveButton = document.getElementById("solve");
 const iiVIButton = document.getElementById("iiVI");
 const resetButton = document.getElementById("reset");
@@ -139,10 +142,10 @@ const getPitch = (tower, partial) => {
       pitch = root / (partial + 1);
       break;
     case 1: // V
-      pitch = root / 4 * (partial + 1);
+      pitch = root / 8 * (partial + 1);
       break;
     case 2: // I
-    pitch = fourth / 8 * (partial + 1);
+    pitch = fourth / 16 * (partial + 1);
       break;
   }
   return pitch;
@@ -173,7 +176,18 @@ let callStack = [];
 const solve = () => {
   callStack = [];
   hanoi(10, 0, 2, 1);
-  timer = setInterval(animateMove, 300); // Start animation;
+  timer = setInterval(animateMove, 1200); // Start animation;
+}
+
+const writeStream = () => {
+  let blob = new Blob([JSON.stringify(noteStream)], {type: "text/plain;charset=utf-8"});
+  let url = URL.createObjectURL(blob);
+  window.location.assign(url);
+  console.log(url);
+}
+
+const midiSpew = () => {
+
 }
 
 solveButton.addEventListener("click", function(e){
@@ -191,6 +205,9 @@ resetButton.addEventListener("click", function() {
 const reset = () => {
   clearInterval(timer);
   killDiscs();
+  towers[0] = [];
+  towers[1] = [];
+  towers[2] = [];
   drawCanvas();
   drawTower(0);
 }
@@ -229,8 +246,7 @@ const twoFiveOne = () => {
     drawTower(iiV.shift());
   } else {
     clearInterval(timer);
-    drawCanvas();
-    drawTower(0);
+    reset();
     iiV = [0, 1, 2];
 }
 }
