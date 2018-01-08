@@ -21,7 +21,9 @@ const towerOffsets = {
 }
 
 const solveButton = document.getElementById("solve");
-const root = 1000;
+const iiVIButton = document.getElementById("iiVI");
+let root = 523.25;
+let fourth = Math.pow(2, 5/12) * root;
 const towers = [[], [], []];
 let clickedTower = -1;
 const drawCanvas = () => {
@@ -62,7 +64,14 @@ const drawCanvas = () => {
   pegs.draw();
 }
 
-drawCanvas();
+const killDiscs = () => {
+  towers.forEach((tower) => {
+    tower.forEach((disk) => {
+      disk.osc.stop();
+    })
+    tower = [];
+  })
+}
 
 const drawTower = (tower = 0) => {
   let discs = [];
@@ -70,7 +79,7 @@ const drawTower = (tower = 0) => {
   for (var i = 0; i < 10; i++) {
     let osc = audioCtx.createOscillator();
     osc.type = 'sine';
-    osc.frequency.value = root / (i+1);
+    osc.frequency.value = getPitch(tower, i);
     osc.connect(audioCtx.destination);
     osc.start();
     discs[i] = {
@@ -124,14 +133,14 @@ const moveDisc = (from, to) => {
 const getPitch = (tower, partial) => {
   let pitch;
   switch (tower) {
-    case 0:
+    case 0: // ii
       pitch = root / (partial + 1);
       break;
-    case 1:
-      pitch = root + partial;
+    case 1: // V
+      pitch = root / 4 * (partial + 1);
       break;
-    case 2:
-    pitch = root * (partial + 1);
+    case 2: // I
+    pitch = fourth / 8 * (partial + 1);
       break;
   }
   return pitch;
@@ -167,10 +176,21 @@ const solve = () => {
 }
 
 solveButton.addEventListener("click", function(e){
+  reset();
   solve();
 })
 
-drawTower();
+iiVIButton.addEventListener("click", function() {
+  reset();
+  timer = setInterval(twoFiveOne, 1000);
+})
+
+const reset = () => {
+  killDiscs();
+  drawCanvas();
+  drawTower(0);
+}
+
 
 const hanoi = (n, src, dst, aux) => {
   if (n === 1 ) {
@@ -190,3 +210,18 @@ const animateMove = () => {
    clearInterval(timer);
  }
 }
+let iiV = [0, 1, 2];
+const twoFiveOne = () => {
+  if (iiV.length > 0 ){
+    drawCanvas();
+    drawTower(iiV.shift());
+  } else {
+    clearInterval(timer);
+    drawCanvas();
+    drawTower(0);
+    iiV = [0, 1, 2];
+}
+}
+
+drawCanvas();
+drawTower(0);
