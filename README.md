@@ -1,7 +1,7 @@
 # hanoi
-Towers of Hanoi based sonification.
+Tower of Hanoi based sonification.
 
-This an interactive implementation of the Towers of Hanoi.
+This an interactive implementation of the Tower of Hanoi.
 Click on towers to select the top most disc, click another tower to move it.
 
 Use the solve button to watch an animation of the solution from the starting position.
