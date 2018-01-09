@@ -2,16 +2,16 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const colors = [
-  "#900",
-  "#391",
-  "#822",
-  "#303",
-  "#111",
-  "#511",
-  "#641",
-  "#161",
-  "#318",
-  "#771",
+  "#b22222", // firebrick
+  "#228b22", // forest green
+  "#daa520", // goldenrod
+  "#dda0dd", // plum
+  "#ff69b4", // hotpink
+  "#add8e6", // light blue
+  "#66cdaa", // medium aguamarine
+  "#ba55d3", // medium orchid
+  "#663399", // rebecca purple
+  "#8b2500", // OrangeRed4
 ];
 
 const towerOffsets = {
@@ -32,13 +32,13 @@ let timer;
 const towers = [[], [], []];
 let clickedTower = -1;
 const drawCanvas = () => {
-  ctx.clearRect(0, 0, 1000, 1200);
+  ctx.clearRect(0, 0, 650, 500);
   ctx.shadowColor = 'black';
 
   let base = {
     color: "#000",
     x: 0,
-    y: 500,
+    y: 350,
     width: 620,
     height: 50,
     draw() {
@@ -50,9 +50,9 @@ const drawCanvas = () => {
   let pegs = {
     color: "#033",
     x: 0,
-    y: 150,
+    y: 50,
     width: 10,
-    height: 350,
+    height: 300,
     draw() {
       ctx.fillStyle = this.color;
       towers.forEach((tower, i) => {
@@ -83,14 +83,17 @@ const drawTower = (tower = 0) => {
   let root = 1000;
   for (var i = 0; i < 10; i++) {
     let osc = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
     osc.type = 'sine';
     osc.frequency.value = getPitch(tower, i);
-    osc.connect(audioCtx.destination);
+    osc.connect(gain);
+    gain.gain.value = 0.1;
+    gain.connect(audioCtx.destination);
     osc.start();
     discs[i] = {
       size: i,
       x: i*7.5 + towerOffsets[tower],
-      y: 490 - i*10,
+      y: 340 - i*10,
       width: 200 - i*15,
       height: 10,
       color: colors[i],
@@ -125,11 +128,9 @@ const moveDisc = (from, to) => {
   { // okay to move!
     let disc = fromTow.pop();
     disc.x = disc.size*7.5 + towerOffsets[to];
-    disc.y = 490 - 10*toTow.length;
+    disc.y = 340 - 10*toTow.length;
     disc.osc.frequency.value = getPitch(to, disc.size);
     toTow.push(disc);
-  } else {
-    console.log("fail: ", fromTow, toTow);
   }
   clickedTower = -1;
   redraw();
@@ -152,15 +153,15 @@ const getPitch = (tower, partial) => {
 }
 
 document.addEventListener("click", function(e) {
-  let x = e.clientX;
-  let y = e.clientY;
+  let x = e.clientX - canvas.offsetLeft;
+  let y = e.clientY - canvas.offsetTop;
   let newTow = -1;
-  if (y > 160 && y < 500 && x < 620 && x > 15) {
-    if (x > 450) {
+  if (y > 50 && y < 400 && x < 620 && x > 15) {
+    if (x > 400) {
       newTow = 2;
-    } else if (x > 230) {
+    } else if (x > 200) {
       newTow = 1;
-    } else if (x > 15) {
+    } else if (x > 0) {
       newTow = 0;
     }
     let newTowerDiscs = towers[newTow];
@@ -183,7 +184,6 @@ const writeStream = () => {
   let blob = new Blob([JSON.stringify(noteStream)], {type: "text/plain;charset=utf-8"});
   let url = URL.createObjectURL(blob);
   window.location.assign(url);
-  console.log(url);
 }
 
 const midiSpew = () => {

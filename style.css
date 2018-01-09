@@ -1,7 +1,24 @@
+body {
+  background-color: #fff8dc;
+}
 .main {
+  text-align: center;
 }
 
+#canvas{
+    margin: auto;
+}
+
+.buttonRow{
+    margin: auto;
+    text-align: center;
+}
+
+.button {
+  background-color: #fffacd;
+
+}
 #solve {
-  margin: 0 auto;
+  margin: auto;
   width: 150px;
 }
