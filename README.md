@@ -5,13 +5,11 @@ This an interactive implementation of the Tower of Hanoi.
 Click on towers to select the top most disc, click another tower to move the disc.
 A disc may only be moved to an empty tower or to a tower with a larger disc at the top.
 
-Click the "Solve" button to watch an animation of the solution.
+- Click the "Solve" button to watch an animation of the solution.
+- Click the "ii V I" button to hear a fully stacked tower individually on each post in succession.
+- Click the "Reset" button to reset the puzzle to its original state.
 
-Click the "ii V I" button to hear a fully stacked tower individually on each post in succession.
-
-Click the "Reset" button to reset the puzzle to its original state.
-
-##Sonification
+## Sonification
 
 Each of the disks has an oscillator attached which represents a harmonic (or subharmonic) partial of the tower on which it is placed.
 
