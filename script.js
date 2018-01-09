@@ -26,11 +26,15 @@ const midi = null;
 const solveButton = document.getElementById("solve");
 const iiVIButton = document.getElementById("iiVI");
 const resetButton = document.getElementById("reset");
+const towers = [[], [], []];
 let root = 523.25;
 let fourth = Math.pow(2, 5/12) * root;
 let timer;
-const towers = [[], [], []];
+let noteStream = [];
+let iiV = [0, 1, 2];
+let callStack = [];
 let clickedTower = -1;
+
 const drawCanvas = () => {
   ctx.clearRect(0, 0, 650, 500);
   ctx.shadowColor = 'black';
@@ -140,7 +144,7 @@ const getPitch = (tower, partial) => {
   let pitch;
   switch (tower) {
     case 0: // ii
-      pitch = root / (partial + 1);
+      pitch = root / (10 - partial);
       break;
     case 1: // V
       pitch = root / 8 * (partial + 1);
@@ -173,7 +177,7 @@ document.addEventListener("click", function(e) {
     }
   }
 });
-let callStack = [];
+
 const solve = () => {
   callStack = [];
   hanoi(10, 0, 2, 1);
@@ -212,7 +216,6 @@ const reset = () => {
   drawTower(0);
 }
 
-let noteStream = [];
 const hanoi = (n, src, dst, aux) => {
   if (n === 1 ) {
     callStack.push([src, dst]);
@@ -239,7 +242,7 @@ const animateMove = () => {
    clearInterval(timer);
  }
 }
-let iiV = [0, 1, 2];
+
 const twoFiveOne = () => {
   if (iiV.length > 0 ){
     drawCanvas();
