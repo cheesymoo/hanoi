@@ -27,7 +27,7 @@ const solveButton = document.getElementById("solve");
 const iiVIButton = document.getElementById("iiVI");
 const resetButton = document.getElementById("reset");
 const towers = [[], [], []];
-let root = 523.25;
+let root = 466.16;
 let fourth = Math.pow(2, 5/12) * root;
 let timer;
 let noteStream = [];
