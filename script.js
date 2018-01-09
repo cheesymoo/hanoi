@@ -73,15 +73,6 @@ const drawCanvas = () => {
   pegs.draw();
 }
 
-const killDiscs = () => {
-  towers.forEach((tower) => {
-    tower.forEach((disk) => {
-      disk.osc.stop();
-    })
-    tower = [];
-  })
-}
-
 const drawTower = (tower = 0) => {
   let discs = [];
   let root = 1000;
@@ -102,6 +93,7 @@ const drawTower = (tower = 0) => {
       height: 10,
       color: colors[i],
       osc: osc,
+      gain: gain,
       draw() {
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -154,6 +146,19 @@ const getPitch = (tower, partial) => {
       break;
   }
   return pitch;
+}
+
+const killDiscs = () => {
+  towers.forEach((tower) => {
+    tower.forEach((disk) => {
+      disk.osc.stop();
+      disk.osc.disconnect();
+      disk.osc = null;
+      disk.gain.disconnect();
+      disk.gain = null;
+    })
+    tower.length = 0;
+  })
 }
 
 document.addEventListener("click", function(e) {
@@ -209,9 +214,6 @@ resetButton.addEventListener("click", function() {
 const reset = () => {
   clearInterval(timer);
   killDiscs();
-  towers[0] = [];
-  towers[1] = [];
-  towers[2] = [];
   drawCanvas();
   drawTower(0);
 }
@@ -245,6 +247,7 @@ const animateMove = () => {
 
 const twoFiveOne = () => {
   if (iiV.length > 0 ){
+    killDiscs();
     drawCanvas();
     drawTower(iiV.shift());
   } else {
