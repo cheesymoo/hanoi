@@ -20,8 +20,18 @@ const towerOffsets = {
   2: 420,
 }
 
-const midi = null;
-//navigator.requestMIDIAccess({sysex: true}).then( (midiAccess) => midi);
+let midi = null;
+let output = null;
+
+navigator.requestMIDIAccess({sysex: true}).then( (midiAccess) => {
+    midi = midiAccess;
+    output = midi.outputs.values().next().value;
+    midi.onstatechange = (e) => {
+        console.log(e);
+    }
+    console.log(midi);
+    console.log(output);
+});
 
 const solveButton = document.getElementById("solve");
 const iiVIButton = document.getElementById("iiVI");
@@ -82,7 +92,7 @@ const drawTower = (tower = 0) => {
     osc.type = 'sine';
     osc.frequency.value = getPitch(tower, i);
     osc.connect(gain);
-    gain.gain.value = 0.1;
+    gain.gain.value = 0.08;
     gain.connect(audioCtx.destination);
     osc.start();
     discs[i] = {
@@ -130,6 +140,19 @@ const moveDisc = (from, to) => {
   }
   clickedTower = -1;
   redraw();
+}
+
+const fakeMove = (from, to) => {
+  let fromTow = dumTows[from];
+  let toTow = dumTows[to];
+  if(from !== -1 && fromTow.length > 0 && (toTow.length === 0 || fromTow[fromTow.length - 1].size > toTow[toTow.length - 1].size))
+  { // okay to move!
+    let disc = fromTow.pop();
+    //disc.x = disc.size*7.5 + towerOffsets[to];
+    //disc.y = 340 - 10*toTow.length;
+    //disc.osc.frequency.value = getPitch(to, disc.size);
+    toTow.push(disc);
+  }
 }
 
 const getPitch = (tower, partial) => {
@@ -183,6 +206,42 @@ document.addEventListener("click", function(e) {
   }
 });
 
+let dumTows = [
+  [
+    {
+      size: 0,
+    },
+    {
+      size: 1,
+    },
+    {
+      size: 2,
+    },
+    {
+      size: 3,
+    },
+    {
+      size: 4,
+    },
+    {
+      size: 5,
+    },
+    {
+      size: 6,
+    },
+    {
+      size: 7,
+    },
+    {
+      size: 8,
+    },
+    {
+      size: 9,
+    },
+  ],
+  [],
+  [],
+];
 const solve = () => {
   callStack = [];
   hanoi(10, 0, 2, 1);
@@ -195,8 +254,65 @@ const writeStream = () => {
   window.location.assign(url);
 }
 
-const midiSpew = () => {
+const noteOn = [
+0x90,
+0x91,
+0x92,
+0x93,
+0x94,
+0x95,
+0x96,
+0x97,
+0x98,
+0x99,
+];
 
+const noteOff = [
+0x80,
+0x81,
+0x82,
+0x83,
+0x84,
+0x85,
+0x86,
+0x87,
+0x88,
+0x89,
+];
+
+/*
+const noteNum = [
+[70, 34, 27],
+[58, 46, 39],
+[51, 53, 46],
+[46],
+[],
+[],
+[],
+[],
+[],
+[],
+];
+*/
+
+const pitchToNote = (pitch) => {
+    Math.round(Math.log(pitch/440.0)/Math.log2() * 1200);
+}
+
+const midiSpew = (portId) => {
+    // Status Byte 1xxx CCCC
+    // Data Byte   0PPP PPPP // pitch
+    // Data Byte   0VVV VVVV velocity
+    // Note on 1001   0x90
+    // Note off 1000  0x80
+    let note = noteStream.shift();
+    let pitch = pitchToNote(getPitch(note.partial, note.dst));
+    let noteOnMsg = [noteOn[note.partial], pitch, 0x7f];
+    console.log(noteOn[note.partial], pitch);
+    output.send(noteOnMsg);
+    let noteOffMsg = [noteOff[note.partial], pitch, 0x7f];
+    output.send(noteOffMsg, window.performance.now() + 800.0);
+    console.log(noteOff[note.partial], pitch);
 }
 
 solveButton.addEventListener("click", function(e){
@@ -219,17 +335,22 @@ const reset = () => {
 }
 
 const hanoi = (n, src, dst, aux) => {
+  let dumTow = dumTows[dst];
   if (n === 1 ) {
     callStack.push([src, dst]);
+    fakeMove(src, dst);
     noteStream.push({
-      partial: towers[src].length - 1,
+      partial: dumTow[dumTow.length - 1].size,
+      src,
       dst,
     })
   } else {
     hanoi(n-1, src, aux, dst);
     callStack.push([src, dst]);
+    fakeMove(src, dst);
     noteStream.push({
-      partial: towers[src].length - 1,
+      partial: dumTow[dumTow.length - 1].size,
+      src,
       dst,
     })
     hanoi(n-1, aux, dst, src);
@@ -240,6 +361,7 @@ const animateMove = () => {
   if (callStack.length > 0) {
     let move = callStack.shift();
     moveDisc(move[0], move[1]);
+    midiSpew();
  } else {
    clearInterval(timer);
  }
