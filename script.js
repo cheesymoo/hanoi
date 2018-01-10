@@ -20,9 +20,6 @@ const towerOffsets = {
   2: 420,
 }
 
-const midi = null;
-//navigator.requestMIDIAccess({sysex: true}).then( (midiAccess) => midi);
-
 const solveButton = document.getElementById("solve");
 const iiVIButton = document.getElementById("iiVI");
 const resetButton = document.getElementById("reset");
@@ -193,10 +190,6 @@ const writeStream = () => {
   let blob = new Blob([JSON.stringify(noteStream)], {type: "text/plain;charset=utf-8"});
   let url = URL.createObjectURL(blob);
   window.location.assign(url);
-}
-
-const midiSpew = () => {
-
 }
 
 solveButton.addEventListener("click", function(e){
