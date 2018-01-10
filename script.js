@@ -244,6 +244,7 @@ let dumTows = [
 ];
 const solve = () => {
   callStack = [];
+  midiStart();
   hanoi(10, 0, 2, 1);
   timer = setInterval(animateMove, 1200); // Start animation;
 }
@@ -254,65 +255,31 @@ const writeStream = () => {
   window.location.assign(url);
 }
 
-const noteOn = [
-0x90,
-0x91,
-0x92,
-0x93,
-0x94,
-0x95,
-0x96,
-0x97,
-0x98,
-0x99,
-];
-
-const noteOff = [
-0x80,
-0x81,
-0x82,
-0x83,
-0x84,
-0x85,
-0x86,
-0x87,
-0x88,
-0x89,
-];
-
-/*
-const noteNum = [
-[70, 34, 27],
-[58, 46, 39],
-[51, 53, 46],
-[46],
-[],
-[],
-[],
-[],
-[],
-[],
-];
-*/
-
 const pitchToNote = (pitch) => {
-    Math.round(Math.log(pitch/440.0)/Math.log2() * 1200);
+  return Math.round((Math.log2(pitch/440.0) * 12) + 69);
 }
 
-const midiSpew = (portId) => {
+const midiStart = () => {
+  for (var i = 0; i < 10; i++) {
+    output.send([144 + i, pitchToNote(getPitch(0, i)), 0x70], window.performance.now() + (i*50.0));
+  }
+}
+const midiSpew = () => {
     // Status Byte 1xxx CCCC
     // Data Byte   0PPP PPPP // pitch
     // Data Byte   0VVV VVVV velocity
     // Note on 1001   0x90
     // Note off 1000  0x80
     let note = noteStream.shift();
-    let pitch = pitchToNote(getPitch(note.partial, note.dst));
-    let noteOnMsg = [noteOn[note.partial], pitch, 0x7f];
-    console.log(noteOn[note.partial], pitch);
+    let noteOffMsg = [128 + note.partial, pitchToNote(getPitch(note.src, note.partial)), 0x7f];
+    output.send(noteOffMsg);
+    let noteOnMsg = [144 + note.partial, pitchToNote(getPitch(note.dst, note.partial)), 0x7f];
     output.send(noteOnMsg);
-    let noteOffMsg = [noteOff[note.partial], pitch, 0x7f];
-    output.send(noteOffMsg, window.performance.now() + 800.0);
-    console.log(noteOff[note.partial], pitch);
+    if (noteStream.length < 1) {
+      for (var i = 0; i < 10; i++) {
+        output.send([128 + i, pitchToNote(getPitch(2, i)), 0x70]);
+      }
+    }
 }
 
 solveButton.addEventListener("click", function(e){
