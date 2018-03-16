@@ -29,7 +29,7 @@ const iiVIButton = document.getElementById("iiVI");
 const resetButton = document.getElementById("reset");
 const muteButton = document.getElementById("mute");
 const towers = [[], [], []];
-let root = 466.16;
+let root = 587.33;
 let fourth = Math.pow(2, 5/12) * root;
 let timer;
 let noteStream = [];
@@ -84,7 +84,7 @@ const drawTower = (tower = 0) => {
     osc.frequency.setTargetAtTime(getPitch(tower, i), audioCtx.currentTime, 0.02);
     osc.connect(gain);
     gain.gain.setValueAtTime(0, 0);
-    gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 3.5);
+    gain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 0.5);
     gain.connect(muteGain);
     osc.start();
     discs[i] = {
@@ -141,7 +141,7 @@ const getPitch = (tower, partial) => {
       pitch = root / (10 - partial);
       break;
     case 1: // V
-      pitch = root / 8 * (partial + 1);
+      pitch = root / 16 * (partial + 1);
       break;
     case 2: // I
     pitch = fourth / 16 * (partial + 1);
