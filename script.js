@@ -1,6 +1,10 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const muteGain = audioCtx.createGain();
+muteGain.connect(audioCtx.destination);
+muteGain.gain.value = 0;
+let muted = true;
 const colors = [
   "#b22222", // firebrick
   "#228b22", // forest green
@@ -23,6 +27,7 @@ const towerOffsets = {
 const solveButton = document.getElementById("solve");
 const iiVIButton = document.getElementById("iiVI");
 const resetButton = document.getElementById("reset");
+const muteButton = document.getElementById("mute");
 const towers = [[], [], []];
 let root = 466.16;
 let fourth = Math.pow(2, 5/12) * root;
@@ -72,7 +77,6 @@ const drawCanvas = () => {
 
 const drawTower = (tower = 0) => {
   let discs = [];
-  let root = 1000;
   for (var i = 0; i < 10; i++) {
     let osc = audioCtx.createOscillator();
     let gain = audioCtx.createGain();
@@ -81,7 +85,7 @@ const drawTower = (tower = 0) => {
     osc.connect(gain);
     gain.gain.setValueAtTime(0, 0);
     gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 3.5);
-    gain.connect(audioCtx.destination);
+    gain.connect(muteGain);
     osc.start();
     discs[i] = {
       size: i,
@@ -204,6 +208,21 @@ iiVIButton.addEventListener("click", function() {
 resetButton.addEventListener("click", function() {
   reset();
 })
+
+muteButton.addEventListener("click", function() {
+    toggleMute();
+})
+
+const toggleMute = () => {
+    if (muted) {
+        muteGain.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + 0.2);
+        muteButton.className = "mute";
+    } else {
+        muteGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+        muteButton.className = "speaker";
+    }
+    muted = !muted;
+}
 
 const reset = () => {
   clearInterval(timer);
