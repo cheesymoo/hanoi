@@ -77,9 +77,10 @@ const drawTower = (tower = 0) => {
     let osc = audioCtx.createOscillator();
     let gain = audioCtx.createGain();
     osc.type = 'sine';
-    osc.frequency.value = getPitch(tower, i);
+    osc.frequency.setTargetAtTime(getPitch(tower, i), audioCtx.currentTime, 0.02);
     osc.connect(gain);
-    gain.gain.value = 0.1;
+    gain.gain.setValueAtTime(0, 0);
+    gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 3.5);
     gain.connect(audioCtx.destination);
     osc.start();
     discs[i] = {
@@ -122,7 +123,7 @@ const moveDisc = (from, to) => {
     let disc = fromTow.pop();
     disc.x = disc.size*7.5 + towerOffsets[to];
     disc.y = 340 - 10*toTow.length;
-    disc.osc.frequency.value = getPitch(to, disc.size);
+    disc.osc.frequency.setTargetAtTime(getPitch(to, disc.size), audioCtx.currentTime, 0.02);
     toTow.push(disc);
   }
   clickedTower = -1;
