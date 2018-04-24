@@ -198,20 +198,29 @@ const writeStream = () => {
 }
 
 solveButton.addEventListener("click", function(e){
+  resumeContext();
   solve();
 })
 
 iiVIButton.addEventListener("click", function() {
+  resumeContext();
   timer = setInterval(twoFiveOne, 1000);
 })
 
 resetButton.addEventListener("click", function() {
+  resumeContext();
   reset();
 })
 
 muteButton.addEventListener("click", function() {
-    toggleMute();
+  audioCtx.resume();
+  toggleMute();
 })
+
+const resumeContext = () => {
+  if (audioCtx.state == 'suspended')
+    audioCtx.resume();
+}
 
 const toggleMute = () => {
     if (muted) {
